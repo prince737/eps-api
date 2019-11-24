@@ -1,17 +1,10 @@
-from flask import Flask
-app = Flask(__name__)
+from setup import app, manager
+from Users.controller import user_controller
 
-@app.route("/")
-def index():
-    return "Index!"
+app.register_blueprint(user_controller, url_prefix="/")
+# app.register_blueprint(user_controller, subdomain="users", url_prefix="/")
 
-@app.route("/hello")
-def hello():
-    return "Hello World!"
-
-@app.route("/members")
-def members():
-    return "Members"
 
 if __name__ == "__main__":
     app.run(debug=True)
+    # manager.run()
