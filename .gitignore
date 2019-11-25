@@ -1,4 +1,5 @@
 eps-api
 .vs-code
+.vscode/
 __pycache__
 profile_images
