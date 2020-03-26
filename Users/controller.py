@@ -1,17 +1,21 @@
 from flask import Blueprint, request, make_response, jsonify, abort
+import json
 from .models import Users
 from flask_login import login_user, login_required, current_user, logout_user
 from .serializer import CreateUserSchema
-from .service import register_user
+from .service import register_user, user_login
 
 user_controller = Blueprint('user_controller', __name__)
 create_user_schema = CreateUserSchema()
 
 @user_controller.route("/login", methods=['POST'])
 def login():
-    user = Users.query.filter_by(name='Prince Dey').first()
-    login_user(user)
-    return 'You are logged in.'
+    data = json.loads(request.data)
+    status = user_login(data)
+    if status['status']:
+        return jsonify(status), 200
+    else:
+        return jsonify(status), 400
 
 @user_controller.route("/register", methods=['POST'])
 def register():

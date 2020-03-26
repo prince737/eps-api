@@ -4,6 +4,10 @@ from utils.errors import errors
 from .serializer import user_schema
 from passlib.hash import sha256_crypt
 import datetime, os
+from sqlalchemy import or_
+import logging
+logging.basicConfig(level=logging.DEBUG)
+from flask_login import login_user
 
 def register_user(data, image):
     full_name = data.get('full_name')
@@ -22,6 +26,7 @@ def register_user(data, image):
         img_up = upload_image(image)
         if not img_up[0]['status']:
             return img_up[0]
+        print(password)
         user = Users(password, dob, email, full_name, phone, img_up[1], 'patient')
         db.session.add(user)
         db.session.commit()
@@ -67,3 +72,27 @@ def upload_image(image):
     except Exception as e:
         print(e)
         return {'status': False, 'reason': errors['IMAGE_UPLOAD_ERROR']}
+
+def user_login(data):
+    try: 
+        user = Users.query.filter(or_(Users.phone == data['id'], Users.email == data['id'])).first()
+        if user:
+
+            logging.info('User found in db') 
+            print(sha256_crypt.verify(data['password'], user.password))
+            print(data['password'])
+            print(user.password)
+            if sha256_crypt.verify(data['password'], user.password):
+                logging.info('password entered matches password found in db. Logging in...') 
+                login_user(user)
+                return {'status': True} 
+            else:
+                logging.info('Incorrect password') 
+                return {'status': False, 'reason': errors['INVALID_USERNAME_PASSWORD']}
+        else:
+            logging.info('Incorect username') 
+            return {'status': False, 'reason': errors['USER_NOT_FOUND']}
+    except Exception as e:
+        print(e)
+        logging.info('Db error: ',e) 
+        return {'status': False, 'reason': errors['USER_NOT_FOUND']}

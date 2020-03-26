@@ -14,5 +14,13 @@ errors = {
     'IMAGE_UPLOAD_ERROR': {
         'code': 'IMAGE_UPLOAD_ERROR',
         'message': 'Failed to upload image.'
+    },
+    'USER_NOT_FOUND': {
+        'code': 'USER_NOT_FOUND',
+        'message': "The email id or mobile number entered is not registered with e-healthcare"
+    },
+    'INVALID_USERNAME_PASSWORD': {
+        'code': 'INVALID_USERNAME_PASSWORD',
+        'message': 'Incorrect email id or mobile number or passsword entered'
     }
 }
