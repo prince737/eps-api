@@ -45,9 +45,9 @@ def verify_email():
     return jsonify(res), 200
 
 @user_controller.route("/profile")
-@login_required
+# @login_required
 def profile():
-    return 'hello '+current_user.name
+    return 'hello '#+current_user.name
 
 @user_controller.route("/logout")
 @login_required
