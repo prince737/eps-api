@@ -2,40 +2,71 @@ from flask import Blueprint, request, make_response, jsonify, abort
 import json
 from .models import Test
 from .service import get_all_tests
+from setup import db
+from .serializer import test_schema
+from .serializer import tests_schema
+
 
 test_controller = Blueprint('test_controller', __name__) 
-#Blueprint is a comcept that helps in grouping similar actions in a common place. For eg, we would want all user related endpoints to be handled from a separate module instead of cluttering all in one place. Blueprint makes that possible. 
-#The "test_controller" is one such blueprint that separates all "test" related functionality to be handled from this file.
 
 
-#QUICK (COMMON) RESPONSE CODE RUN DOWN
-#200 = Everything is ok, users request was successfully performed
-#201 = User asked to store some data, that rewuest was successfully performed.
-#400 = Opposite of 200, users request was not successfully performed
-#401 = User is not logged in
-#403 = User does not access to perform the operation they requested
-#500 = General error response code. Mostly used for some unforeseen error. For eg: in generic case of an exception handling block 
+@test_controller.route("/test_post", methods=['POST']) 
+def add_testvalue():
+    
+    value1 =request.json['value1']
+    value2 =request.json['value2']
+
+    new_testvalue=Test(value1,value2)
+    db.session.add(new_testvalue)
+    db.session.commit()
+
+    new_testvalue = test_schema.dumps(new_testvalue)
+
+    return new_testvalue
 
 
-@test_controller.route("/test_get")
-def profile():
-    return jsonify({'key': 'Value'}), 200
-    # return {'key': 'Value'}, 200 #This will also work if data is already a dict. But make sure the returned response is always a dictionary. Even for error cases and this its a good practice to use jsonify
 
-@test_controller.route("/test_post", methods=['POST']) #defining /test_post endpoint. "test_post" function will be invoked for the url(endpoint) http://127.0.0.1/test/test_post
-def test_post():
-    data = json.loads(request.data)
-    print(data)
-    print(request.data)
-    print(data['id']) #assuming is present is request body sent from pastman
-    #print(request['id']) #assuming is present is request body sent from pastman. This line will give error saying dict object has no attribute id. Hence the use of json.loads to load data from request object
-
-    #TODO: Perform operation on data which will mostly include db interactions. This logic goes in service.py file.
+    
     get_all_tests()
 
 
-    data['status'] = True
-    if data['status']:
-        return jsonify(data), 200 
+    new_testvalue['status'] = True
+    if new_testvalue['status']:
+        return new_testvalue, 200 
     else:
-        return jsonify(data), 400
+        return new_testvalue, 400
+
+@test_controller.route("/test_get", methods=['GET'])
+def get_testvalue():
+    all_testdata = Test.query.all()
+    result= tests_schema.dump(all_testdata)
+    print(result)
+    return jsonify(result)
+
+
+
+@test_controller.route("/test_update/<id>", methods=['PUT'])
+def update_testvalue(id):
+    try:
+        update_this = Test.query.filter_by(id=id).first()
+        update_this.value2=request.json['value2']
+        print(update_this.value2)
+        db.session.commit()
+        print(id)
+        return {"status": "completed"}, 200
+    except Exception as e:
+        print(e)
+        return {"stauts": "failed"}, 400
+
+
+
+
+@test_controller.route("/test_delete/<id>", methods=['DELETE'])
+def delete_testvalue(id):
+    try:
+        Test.query.filter_by(id=id).delete()
+        db.session.commit()
+        return {"status": "deleted"}, 200
+    except Exception as e:
+        print(e)
+        return {"stauts": "failed"}, 400

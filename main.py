@@ -7,5 +7,5 @@ app.register_blueprint(user_controller, url_prefix="/")
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    # manager.run()
+  app.run(debug=True)
+  #manager.run()
