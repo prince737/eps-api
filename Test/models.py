@@ -12,3 +12,5 @@ class Test(db.Model): #test table definitions
 
     def __repr__(self): #this is what you get if you print Test Object
         return '<Test %r>' % self.value1
+ 
+#db.create_all
